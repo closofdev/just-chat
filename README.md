@@ -75,7 +75,3 @@ src/
     ThinkingRow.jsx           indikator titik saat menunggu
     Composer.jsx              input, lampiran, pilih model, tombol kirim/stop
 ```
-
-## Catatan
-
-Angka token per detik adalah estimasi dari jumlah kata dikali 1,3 dibagi durasi stream. Gateway tidak mengirim hitungan token asli saat streaming, jadi angkanya mendekati, bukan eksak.
