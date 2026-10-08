@@ -6,8 +6,6 @@ Dibangun dengan React + Vite, tanpa komponen UI pihak ketiga — semua dijual ta
 
 ![preview](docs/images/preview-1.png)
 
-![demo](docs/images/demo.gif)
-
 ## Yang ada di dalamnya
 
 - **Streaming nyata** — token muncul satu per satu dengan fade halus per kata dan kursor kedip. Fence ```` ``` ```` yang belum ditutup pun langsung tampil sebagai code block, jadi tidak perlu nunggu penulisannya selesai.
