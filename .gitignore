@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+.vite
+*.local
+.env
+.env.*
+.DS_Store
+Thumbs.db
+docs/frames
