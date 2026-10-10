@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { streamChat, toHistory } from '../lib/api.js';
-import { DEFAULT_MODEL, FALLBACK_MODELS } from '../config/models.js';
+import { DEFAULT_MODEL, MODELS } from '../config/models.js';
 import { calcTps } from '../lib/time.js';
 
 const seedMessages = () => ([
@@ -16,7 +16,7 @@ export function useChat(scrollRef) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [, setNow] = useState(Date.now());
   const [model, setModel] = useState(DEFAULT_MODEL);
-  const [models, setModels] = useState(FALLBACK_MODELS);
+  const [models, setModels] = useState(MODELS);
 
   const messagesRef = useRef(messages);
   const modelRef = useRef(model);
@@ -30,7 +30,7 @@ export function useChat(scrollRef) {
 
   // daftar model murni dari config (src/config/models.js), tanpa tambahan server
   useEffect(() => {
-    setModels([...FALLBACK_MODELS]);
+    setModels([...MODELS]);
   }, []);
 
   // perbarui label waktu relatif tiap 5 detik tanpa fetch ulang
@@ -71,13 +71,8 @@ export function useChat(scrollRef) {
     setStreamText('');
     forceScrollRef.current = true;
     scrollBottom(true);
-    // kunci identitas sesuai model terpilih agar tidak ikut persona riwayat chat
-    const sysHistory = [
-      { role: 'system', content: `Kamu adalah model AI "${modelRef.current}". Selalu jawab sesuai identitas aslimu, jangan mengaku sebagai model lain.` },
-      ...history
-    ];
     try {
-      const full = await streamChat(sysHistory, {
+      const full = await streamChat(history, {
         model: modelRef.current,
         signal: ctrl.signal,
         onToken: (text, first) => {

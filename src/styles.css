@@ -27,14 +27,14 @@ body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);fon
 
 .msg-ai{display:flex;gap:11px;align-items:flex-start;width:100%}
 .ai-body{flex:1;min-width:0;font-size:15px;line-height:1.5}
-.ai-body p{margin:0 0 4px}
+.ai-body p{margin:0 0 6px}
 .ai-body p:last-child{margin-bottom:0}
-.ai-body ul{margin:4px 0;padding-left:22px}
-.ai-body li{margin:2px 0}
+.ai-body ul{margin:6px 0;padding-left:22px}
+.ai-body li{margin:3px 0}
 .ai-body li::marker{color:var(--accent)}
 .ai-body code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86em;background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.06);padding:2px 7px;border-radius:8px}
-.ai-body pre{position:relative;background:#141412;border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;overflow:auto;
+.ai-body pre{position:relative;background:#141412;border:1px solid rgba(255,255,255,.06);padding:14px;overflow:auto;margin:10px 0;
   font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;line-height:1.55}
 .ai-body pre code{background:none;border:0;padding:0}
 .ai-body pre[data-lang]:not([data-lang=""])::before{content:attr(data-lang);position:absolute;top:9px;left:12px;font-size:11px;color:var(--muted);font-family:var(--font)}
@@ -45,19 +45,27 @@ pre:hover .code-copy,.code-copy.done,.code-copy:focus-visible{opacity:1}
 .code-copy svg{width:13px;height:13px}
 @media (hover:none){.code-copy{opacity:1}}
 .ai-body > :first-child{margin-top:0}
-.ai-body h2{font-size:18px;margin:10px 0 5px;font-weight:600;line-height:1.35}
-.ai-body h3{font-size:16.5px;margin:10px 0 5px;font-weight:600;line-height:1.35}
-.ai-body h4,.ai-body h5{font-size:15px;margin:8px 0 4px;font-weight:600;line-height:1.35}
+.ai-body h2{font-size:18px;margin:22px 0 8px;font-weight:600;line-height:1.35}
+.ai-body h3{font-size:16.5px;margin:18px 0 7px;font-weight:600;line-height:1.35}
+.ai-body h4,.ai-body h5{font-size:15px;margin:14px 0 6px;font-weight:600;line-height:1.35}
 .ai-body a{color:#e89b7d;text-decoration:none;border-bottom:1px solid rgba(232,155,125,.4)}
 .ai-body a:hover{border-bottom-color:#e89b7d}
-.ai-body blockquote{border-left:2px solid var(--accent);margin:6px 0;padding:2px 0 2px 12px}
-.ai-body hr{border:0;border-top:1px solid var(--line);margin:8px 0}
-.ai-body ol{margin:4px 0;padding-left:22px}
-.ai-body ol li{margin:2px 0}
+.ai-body blockquote{border-left:2px solid var(--accent);margin:10px 0;padding:2px 0 2px 12px}
+.ai-body hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.ai-body ol{margin:6px 0;padding-left:22px}
+.ai-body ol li{margin:3px 0}
 .ai-body ol li::marker{color:var(--accent)}
+/* tabel markdown: bungkus bisa di-scroll, gaya menyatu dengan tema */
+.ai-body .table-wrap{margin:10px 0;overflow-x:auto;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)}
+.ai-body table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--font)}
+.ai-body th,.ai-body td{text-align:left;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}
+.ai-body th{font-weight:600;color:var(--text);background:rgba(255,255,255,.05);white-space:nowrap}
+.ai-body td{color:var(--text)}
+.ai-body tbody tr:last-child td{border-bottom:0}
+.ai-body tbody tr:hover{background:rgba(127,120,108,.12)}
 .ai-actions{display:flex;gap:0;margin:8px 0 0 -3px;flex-wrap:wrap;align-items:center;opacity:0;transform:translateY(3px);transition:opacity .28s ease,transform .28s ease;pointer-events:none}
 .msg-ai:hover .ai-actions,.msg-ai:focus-within .ai-actions{opacity:1;transform:none;pointer-events:auto}
-.resp-time{font-size:10.5px;color:var(--muted);margin-left:0;white-space:nowrap}
+.resp-time{font-size:10.5px;color:var(--muted);margin-left:6px;padding-left:2px;white-space:nowrap}
 @media (hover:none){.ai-actions{opacity:1;transform:none;pointer-events:auto}}
 .mini-btn{width:20px;height:20px;display:inline-grid;place-items:center;background:none;border:0;color:var(--muted);cursor:pointer;border-radius:7px;font-family:var(--font)}
 .mini-btn:hover{color:var(--text);background:none}

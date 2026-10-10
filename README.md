@@ -35,10 +35,10 @@ npm run serve    # http://localhost:8081
 
 ## Docker
 
-AI tetap jalan di host, container hanya menyajikan UI dan mem-proxy `/v1/*` ke host. Key disimpan sebagai env server, jadi tidak pernah sampai ke browser.
+Container menyajikan UI dan mem-proxy `/cb/*` ke CodeBuddy. Token disimpan sebagai env server, jadi tidak pernah sampai ke browser.
 
 ```bash
-AI_API_KEY=sk-... docker compose up --build -d
+CODEBUDDY_TOKEN=eyJ... docker compose up --build -d
 ```
 
 Buka `http://localhost:8081`.
@@ -48,9 +48,7 @@ Atau tanpa compose:
 ```bash
 docker build -t just-chat .
 docker run -d --name just-chat -p 8081:8081 \
-  -e AI_UPSTREAM=http://host.docker.internal:20128 \
-  -e AI_API_KEY=sk-... \
-  --add-host host.docker.internal:host-gateway \
+  -e CODEBUDDY_TOKEN=eyJ... \
   just-chat
 ```
 
@@ -58,26 +56,27 @@ Variabel yang dibaca `server.cjs`:
 
 | Env | Default | Fungsi |
 |---|---|---|
-| `AI_UPSTREAM` | `http://127.0.0.1:20128` | alamat gateway AI |
-| `AI_API_KEY` | — | key yang disisipkan ke setiap request `/v1/*`; kosong = server balas 500 |
+| `CODEBUDDY_TOKEN` | — | token bearer CodeBuddy; kosong = server balas 500 |
 | `PORT` | `8081` | port server |
 
 ## Konfigurasi
 
-Endpoint AI ada di `src/lib/api.js` (selalu `/v1`, tanpa key — key dipegang proxy/server):
+Endpoint AI ada di `src/lib/api.js` (selalu lewat proxy `/cb`, tanpa token — token dipegang server):
 
 ```js
-export const API_BASE = '/v1';
+export function endpointFor(modelId) {
+  const m = MODELS.find((x) => x.id === modelId) || MODELS[0];
+  return m.provider === 'codebuddy' ? '/cb/chat/completions' : '/v1/chat/completions';
+}
 ```
 
-Daftar model ada di `src/config/models.js`. Label di sini yang dipakai untuk tampilan:
+Daftar model ada di `src/config/models.js`. Label di sini yang dipakai untuk tampilan, `provider` menentukan endpoint:
 
 ```js
-export const DEFAULT_MODEL = 'oc/muse-spark-1.3-contributor-free';
+export const DEFAULT_MODEL = 'deepseek-v4.1-flash';
 
-export const FALLBACK_MODELS = [
-  { id: 'oc/mimo-v2.6-flash-free', label: 'Mimo V2.6' },
-  { id: 'oc/muse-spark-1.3-contributor-free', label: 'Muse Spark' }
+export const MODELS = [
+  { id: 'deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash', provider: 'codebuddy' }
 ];
 ```
 

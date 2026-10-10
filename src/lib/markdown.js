@@ -26,19 +26,52 @@ export function md(src) {
     tailPre = `\u0000${pres.length - 1}\u0000`;
   }
   const lines = head.split('\n');
-  let out = '', para = [], list = null;
+  let out = '', para = [], list = null, listGap = false;
   const flushPara = () => { if (para.length) { out += `<p>${para.join('<br>')}</p>`; para = []; } };
-  const flushList = () => { if (list) { out += list.tag === 'ol' ? `<ol>${list.items}</ol>` : `<ul>${list.items}</ul>`; list = null; } };
-  for (const line of lines) {
+  const flushList = () => { if (list) { out += list.tag === 'ol' ? `<ol>${list.items}</ol>` : `<ul>${list.items}</ul>`; list = null; listGap = false; } };
+  // buka list; kalau tipe sama dengan list sebelumnya, lanjutkan blok yang sama
+  const openList = (tag) => {
+    if (list && list.tag === tag) { listGap = false; return; }
+    flushList();
+    list = { tag, items: '' };
+    listGap = false;
+  };
+  const isTableRow = (l) => /^\s*\|.*\|\s*$/.test(l);
+  const isTableSep = (l) => /^\s*\|[\s:|-]+\|\s*$/.test(l) && l.includes('-');
+  const cellsOf = (l) => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+  // baris yang isinya cuma angka (sisa penomoran model) dibuang agar tak jadi blok nyasar
+  const isOrphanNumber = (l) => /^\s*\**\s*\d{1,2}\s*[.)]?\s*\**\s*$/.test(l) && !/^\s*\d{1,2}[.)]\s+\S/.test(l);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     let m;
-    if (/^\u0000\d+\u0000$/.test(line)) { flushPara(); flushList(); out += pres[+line.replace(/\u0000/g, '')]; }
+    if (isOrphanNumber(line)) { continue; }
+    // tabel: baris header + garis pemisah
+    if (isTableRow(line) && isTableSep(lines[i + 1] || '')) {
+      flushPara(); flushList();
+      const head = cellsOf(line);
+      i += 2;
+      let body = '';
+      while (i < lines.length && isTableRow(lines[i])) { body += `<tr>${cellsOf(lines[i]).map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`; i++; }
+      i--;
+      out += `<div class="table-wrap"><table><thead><tr>${head.map((c) => `<th>${inline(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+    }
+    else if (/^\u0000\d+\u0000$/.test(line)) { flushPara(); flushList(); out += pres[+line.replace(/\u0000/g, '')]; }
     else if ((m = line.match(/^(#{1,4})\s+(.+)/))) { flushPara(); flushList(); const lv = m[1].length; out += `<h${lv + 1}>${inline(m[2])}</h${lv + 1}>`; }
     else if (/^---+$/.test(line.trim())) { flushPara(); flushList(); out += '<hr>'; }
     else if ((m = line.match(/^&gt;\s?(.*)/))) { flushPara(); flushList(); out += `<blockquote>${inline(m[1]) || '<br>'}</blockquote>`; }
-    else if ((m = line.match(/^-\s+(.+)/))) { flushPara(); if (!list || list.tag !== 'ul') { flushList(); list = { tag: 'ul', items: '' }; } list.items += `<li>${inline(m[1])}</li>`; }
-    else if ((m = line.match(/^\d+[.)]\s+(.+)/))) { flushPara(); if (!list || list.tag !== 'ol') { flushList(); list = { tag: 'ol', items: '' }; } list.items += `<li>${inline(m[1])}</li>`; }
-    else if (!line.trim()) { flushPara(); flushList(); }
-    else { flushList(); para.push(inline(line)); }
+    else if ((m = line.match(/^-\s+(.+)/))) { flushPara(); openList('ul'); list.items += `<li>${inline(m[1])}</li>`; }
+    else if ((m = line.match(/^\d+[.)]\s+(.+)/))) { flushPara(); openList('ol'); list.items += `<li>${inline(m[1])}</li>`; }
+    else if (!line.trim()) {
+      flushPara();
+      // baris kosong setelah list: tahan dulu, kalau ternyata diikuti list sejenis tetap digabung
+      if (list) listGap = true;
+      else flushList();
+    }
+    else {
+      if (list && listGap) flushList();
+      else flushList();
+      para.push(inline(line));
+    }
   }
   flushPara(); flushList();
   if (tailPre) out += pres[+tailPre.replace(/\u0000/g, '')];

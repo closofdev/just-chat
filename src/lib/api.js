@@ -1,17 +1,15 @@
-// Klien AI asli (OpenAI-compatible, streaming SSE) via 9Router lokal.
-// Request selalu lewat proxy same-origin (/v1); API key disuntikkan oleh server,
-// jadi tidak ada kredensial yang ikut ke bundle browser.
-import { DEFAULT_MODEL, FALLBACK_MODELS } from '../config/models.js';
+// Klien AI (streaming SSE) via proxy same-origin ke CodeBuddy.
+// Token disuntikkan oleh server (env CODEBUDDY_TOKEN), jadi tidak ada
+// kredensial yang ikut ke bundle browser.
+import { DEFAULT_MODEL, MODELS } from '../config/models.js';
 
-export const API_BASE = '/v1';
+export const DEFAULT = DEFAULT_MODEL;
+export { DEFAULT_MODEL, MODELS };
 
-export { DEFAULT_MODEL, FALLBACK_MODELS };
-
-export async function fetchModels() {
-  const res = await fetch(`${API_BASE}/models`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const j = await res.json();
-  return (j.data || []).map((m) => m.id).filter(Boolean);
+// petakan model -> endpoint proxy yang sesuai providernya
+export function endpointFor(modelId) {
+  const m = MODELS.find((x) => x.id === modelId) || MODELS[0];
+  return m.provider === 'codebuddy' ? '/cb/chat/completions' : '/v1/chat/completions';
 }
 
 export function toHistory(messages) {
@@ -20,10 +18,14 @@ export function toHistory(messages) {
 
 // Stream token per token. onToken(fullText, isFirstToken). Resolve dengan teks penuh.
 export async function streamChat(history, { model, signal, onToken }) {
-  const res = await fetch(`${API_BASE}/chat/completions`, {
+  const res = await fetch(endpointFor(model), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model, messages: history, stream: true }),
+    body: JSON.stringify({
+      model: model || DEFAULT_MODEL,
+      messages: [{ role: 'system', content: 'You are a helpful assistant.' }, ...history],
+      stream: true
+    }),
     signal
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -44,7 +46,8 @@ export async function streamChat(history, { model, signal, onToken }) {
       const data = t.slice(5).trim();
       if (!data || data === '[DONE]') continue;
       try {
-        const tok = JSON.parse(data).choices[0].delta.content || '';
+        const delta = JSON.parse(data).choices[0].delta || {};
+        const tok = delta.content || '';
         if (tok) {
           const first = !gotToken;
           gotToken = true;
