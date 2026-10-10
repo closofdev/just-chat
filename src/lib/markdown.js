@@ -40,8 +40,7 @@ export function md(src) {
   const isTableSep = (l) => /^\s*\|[\s:|-]+\|\s*$/.test(l) && l.includes('-');
   const cellsOf = (l) => l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
   // baris yang isinya cuma angka (sisa penomoran model) dibuang agar tak jadi blok nyasar
-  const isOrphanNumber = (l) => /^\s*\**\s*\d{1,2}\s*[.)]?\s*\**\s*$/.test(l) && !/^\s*\d{1,2}[.)]\s+\S/.test(l);
-  for (let i = 0; i < lines.length; i++) {
+  const isOrphanNumber = (l) => /^\s*\**\s*\d{1,2}\s*[.)]?\s*\**\s*$/.test(l);  for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let m;
     if (isOrphanNumber(line)) { continue; }
