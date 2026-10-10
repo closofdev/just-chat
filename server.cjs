@@ -1,11 +1,13 @@
-// Server statis + proxy agar browser bisa mengakses API lokal tanpa kena blokir CORS.
-// Jalankan: node server.js  ->  buka http://localhost:8080
+// Server statis + proxy agar browser bisa mengakses API AI tanpa kena blokir CORS.
+// API key hanya hidup di proses ini (env AI_API_KEY), tidak pernah dikirim ke browser.
+// Jalankan: node server.cjs  ->  buka http://localhost:8081
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const UPSTREAM = 'http://127.0.0.1:20128';
-const PORT = 8081;
+const UPSTREAM = process.env.AI_UPSTREAM || 'http://127.0.0.1:20128';
+const PORT = Number(process.env.PORT) || 8081;
+const API_KEY = process.env.AI_API_KEY || '';
 // sajikan hasil build React bila ada, fallback ke file root (dev vanilla lama)
 const DIST = path.join(__dirname, 'dist');
 const ROOT = fs.existsSync(DIST) ? DIST : __dirname;
@@ -23,10 +25,16 @@ const server = http.createServer((req, res) => {
 
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname.startsWith('/v1/')) {
+    if (!API_KEY) {
+      res.writeHead(500, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ error: 'AI_API_KEY belum diset di server' }));
+      return;
+    }
     try {
       const fwdHeaders = {};
       if (req.headers['content-type']) fwdHeaders['content-type'] = req.headers['content-type'];
-      if (req.headers['authorization']) fwdHeaders['authorization'] = req.headers['authorization'];
+      // key selalu dari env server, header dari client diabaikan
+      fwdHeaders['authorization'] = `Bearer ${API_KEY}`;
       const proxy = http.request(
         UPSTREAM + url.pathname + url.search,
         { method: req.method, headers: fwdHeaders },
@@ -59,4 +67,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => console.log(`UI: http://localhost:${PORT}  -> proxy ${UPSTREAM}`));
+server.listen(PORT, () => console.log(
+  `UI: http://localhost:${PORT}  -> proxy ${UPSTREAM}  (AI_API_KEY: ${API_KEY ? 'ada' : 'KOSONG'})`
+));

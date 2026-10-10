@@ -1,16 +1,14 @@
 // Klien AI asli (OpenAI-compatible, streaming SSE) via 9Router lokal.
-// Dibuka via dev/prod -> request lewat proxy same-origin (bebas CORS).
+// Request selalu lewat proxy same-origin (/v1); API key disuntikkan oleh server,
+// jadi tidak ada kredensial yang ikut ke bundle browser.
 import { DEFAULT_MODEL, FALLBACK_MODELS } from '../config/models.js';
 
-export const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:20128/v1' : '/v1';
-export const API_KEY = 'sk-0b81f21590e09691-qlyj5k-1a3c155a';
+export const API_BASE = '/v1';
 
 export { DEFAULT_MODEL, FALLBACK_MODELS };
 
 export async function fetchModels() {
-  const res = await fetch(`${API_BASE}/models`, {
-    headers: { Authorization: `Bearer ${API_KEY}` }
-  });
+  const res = await fetch(`${API_BASE}/models`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const j = await res.json();
   return (j.data || []).map((m) => m.id).filter(Boolean);
@@ -24,7 +22,7 @@ export function toHistory(messages) {
 export async function streamChat(history, { model, signal, onToken }) {
   const res = await fetch(`${API_BASE}/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${API_KEY}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages: history, stream: true }),
     signal
   });

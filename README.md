@@ -33,13 +33,41 @@ npm run serve    # http://localhost:8081
 
 `npm run serve` menyajikan hasil build dari `dist/` sekaligus memproyeksikan `/v1/*` ke gateway AI.
 
+## Docker
+
+AI tetap jalan di host, container hanya menyajikan UI dan mem-proxy `/v1/*` ke host. Key disimpan sebagai env server, jadi tidak pernah sampai ke browser.
+
+```bash
+AI_API_KEY=sk-... docker compose up --build -d
+```
+
+Buka `http://localhost:8081`.
+
+Atau tanpa compose:
+
+```bash
+docker build -t just-chat .
+docker run -d --name just-chat -p 8081:8081 \
+  -e AI_UPSTREAM=http://host.docker.internal:20128 \
+  -e AI_API_KEY=sk-... \
+  --add-host host.docker.internal:host-gateway \
+  just-chat
+```
+
+Variabel yang dibaca `server.cjs`:
+
+| Env | Default | Fungsi |
+|---|---|---|
+| `AI_UPSTREAM` | `http://127.0.0.1:20128` | alamat gateway AI |
+| `AI_API_KEY` | — | key yang disisipkan ke setiap request `/v1/*`; kosong = server balas 500 |
+| `PORT` | `8081` | port server |
+
 ## Konfigurasi
 
-Endpoint dan API key ada di `src/lib/api.js`:
+Endpoint AI ada di `src/lib/api.js` (selalu `/v1`, tanpa key — key dipegang proxy/server):
 
 ```js
-export const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:20128/v1' : '/v1';
-export const API_KEY = 'sk-...';
+export const API_BASE = '/v1';
 ```
 
 Daftar model ada di `src/config/models.js`. Label di sini yang dipakai untuk tampilan:
