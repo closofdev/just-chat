@@ -35,7 +35,6 @@ export default function App() {
       </div>
       <Composer
         isStreaming={chat.isStreaming} onSend={chat.send} onStop={chat.stop}
-        model={chat.model} models={chat.models} onModelChange={chat.setModel}
         disabled={!!chat.pendingQuestion}
       />
     </main>

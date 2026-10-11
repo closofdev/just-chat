@@ -46,17 +46,36 @@ export function useChat(scrollRef) {
     return () => clearInterval(t);
   }, []);
 
-  // scroll ke bawah, kecuali user sedang membaca ke atas (force=true tetap paksa)
+  // auto-scroll: tempel ke bawah selama user tidak menggulir ke atas sendiri
+  const stickRef = useRef(true);
+
   const scrollBottom = useCallback((force) => {
     const el = scrollRef.current;
     if (!el) return;
-    if (!force && el.scrollHeight - el.scrollTop - el.clientHeight > 80) return;
+    if (!force && !stickRef.current) return;
     el.scrollTop = el.scrollHeight;
   }, [scrollRef]);
 
+  // deteksi posisi user: kalau jauh dari bawah, hentikan auto-scroll
   useEffect(() => {
-    scrollBottom(forceScrollRef.current);
-    forceScrollRef.current = false;
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+      stickRef.current = distance < 80;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [scrollRef]);
+
+  useEffect(() => {
+    if (forceScrollRef.current) {
+      stickRef.current = true;
+      scrollBottom(true);
+      forceScrollRef.current = false;
+      return;
+    }
+    scrollBottom(false);
   }, [messages, scrollBottom]);
 
   useEffect(() => {
