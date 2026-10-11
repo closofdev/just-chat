@@ -2,7 +2,7 @@
 
 Dibangun dengan React + Vite, tanpa komponen UI pihak ketiga — semua dijual tangan: markdown renderer, auto-scroll, state chat, animasi stream. Backend-nya OpenAI-compatible, jadi bisa nempel ke 9Router, OpenAI, atau server lokal apa pun yang sejenis.
 
-![preview](docs/images/preview-1.png)
+![preview](docs/images/image.png)
 
 ## Yang ada di dalamnya
 
