@@ -363,12 +363,19 @@ export async function callCodebuddy(token, model, messages, useTools, signal, on
     payload.tool_choice = 'auto';
   }
 
-  const res = await fetch(`https://${CODEBUDDY_HOST}/v2/chat/completions`, {
-    method: 'POST',
-    headers: codebuddyHeaders(token, 'application/json'),
-    body: JSON.stringify(payload),
-    signal,
-  });
+  let res;
+  try {
+    res = await fetch(`https://${CODEBUDDY_HOST}/v2/chat/completions`, {
+      method: 'POST',
+      headers: codebuddyHeaders(token, 'application/json'),
+      body: JSON.stringify(payload),
+      signal,
+    });
+  } catch (e) {
+    // tampilkan penyebab asli (cause) supaya tidak cuma "fetch failed"
+    const cause = e && e.cause ? ` (cause=${e.cause.code || e.cause.message || e.cause})` : '';
+    throw new Error(`tidak bisa menghubungi CodeBuddy: ${e.message}${cause}`);
+  }
 
   if (res.status >= 400) {
     const errBody = await res.text();
