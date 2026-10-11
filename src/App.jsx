@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useChat } from './hooks/useChat.js';
+import { useViewportHeight } from './hooks/useViewportHeight.js';
 import { UserMessage } from './components/UserMessage.jsx';
 import { AiMessage } from './components/AiMessage.jsx';
 import { StreamMessage } from './components/StreamMessage.jsx';
@@ -10,6 +11,7 @@ import { QuestionForm } from './components/QuestionForm.jsx';
 
 export default function App() {
   const scrollRef = useRef(null);
+  useViewportHeight();
   const chat = useChat(scrollRef);
 
   return (

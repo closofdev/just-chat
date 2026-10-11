@@ -11,8 +11,8 @@ html,body{height:100%}
 body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
 .hidden{display:none!important}
 
-.room-wrap{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:820px;margin:0 auto}
-#chatScroll{flex:1;overflow-y:auto;padding:26px 22px 10px;scrollbar-width:thin;scrollbar-color:rgba(168,164,155,.35) transparent;overscroll-behavior:contain}
+.room-wrap{height:100vh;height:var(--app-h, 100dvh);display:flex;flex-direction:column;max-width:820px;margin:0 auto;overflow:hidden}
+#chatScroll{flex:1;min-height:0;overflow-y:auto;padding:26px 22px 10px;scrollbar-width:thin;scrollbar-color:rgba(168,164,155,.35) transparent;overscroll-behavior:contain}
 #chatScroll::-webkit-scrollbar{width:8px}
 #chatScroll::-webkit-scrollbar-thumb{background:rgba(168,164,155,.28);border-radius:99px}
 #chatScroll::-webkit-scrollbar-track{background:transparent}
@@ -71,6 +71,12 @@ pre:hover .code-copy,.code-copy.done,.code-copy:focus-visible{opacity:1}
 .ai-body ol{margin:6px 0;padding-left:22px}
 .ai-body ol li{margin:3px 0}
 .ai-body ol li::marker{color:var(--accent)}
+/* rumus KaTeX: blok bisa digulir horizontal di layar sempit */
+.ai-body .katex-display{margin:10px 0;overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.ai-body .katex{font-size:1.05em}
+.ai-body .katex-display > .katex{font-size:1.1em}
+.ai-body .katex .katex-html{color:var(--text)}
+
 /* tabel markdown: bungkus bisa di-scroll, gaya menyatu dengan tema */
 .ai-body .table-wrap{margin:10px 0;overflow-x:auto;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)}
 .ai-body table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--font)}
