@@ -6,12 +6,22 @@ import { createAgentStream, SYSTEM_PROMPT, MAX_TOOL_ROUNDS } from './_agent.js';
 export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
+  const token = process.env.CODEBUDDY_TOKEN || '';
+  // Diagnostik: GET /api/chat menampilkan status env (tanpa membocorkan token).
+  if (req.method === 'GET') {
+    res.status(200).json({
+      tokenTerbaca: Boolean(token),
+      panjangToken: token.length,
+      awalanToken: token ? token.slice(0, 6) + '...' : null,
+      envYangMirip: Object.keys(process.env).filter((k) => /CODEBUDDY|TOKEN/i.test(k)),
+      node: process.version,
+    });
+    return;
+  }
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-
-  const token = process.env.CODEBUDDY_TOKEN || '';
   if (!token) {
     res.status(500).json({ error: 'CODEBUDDY_TOKEN belum diset di Environment Variables Vercel' });
     return;
