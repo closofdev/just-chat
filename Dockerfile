@@ -13,7 +13,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8081
 COPY package.json ./
-COPY server.cjs ./
+COPY server.mjs ./
+COPY api ./api
 COPY --from=build /app/dist ./dist
 EXPOSE 8081
-CMD ["node", "server.cjs"]
+CMD ["node", "server.mjs"]

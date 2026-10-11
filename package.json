@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "serve": "node server.cjs"
+    "serve": "node server.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
