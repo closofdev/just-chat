@@ -5,6 +5,8 @@ import { AiMessage } from './components/AiMessage.jsx';
 import { StreamMessage } from './components/StreamMessage.jsx';
 import { ThinkingRow } from './components/ThinkingRow.jsx';
 import { Composer } from './components/Composer.jsx';
+import { ToolBadge } from './components/ToolBadge.jsx';
+import { QuestionForm } from './components/QuestionForm.jsx';
 
 export default function App() {
   const scrollRef = useRef(null);
@@ -24,12 +26,17 @@ export default function App() {
               />
             )))}
           {chat.streamText ? <StreamMessage text={chat.streamText} /> : null}
+          <ToolBadge tool={chat.activeTool} />
+          {chat.pendingQuestion
+            ? <QuestionForm pending={chat.pendingQuestion} onAnswer={chat.answerQuestion} />
+            : null}
         </div>
         {chat.thinking ? <ThinkingRow /> : null}
       </div>
       <Composer
         isStreaming={chat.isStreaming} onSend={chat.send} onStop={chat.stop}
         model={chat.model} models={chat.models} onModelChange={chat.setModel}
+        disabled={!!chat.pendingQuestion}
       />
     </main>
   );

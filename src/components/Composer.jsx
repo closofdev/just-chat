@@ -12,7 +12,7 @@ function ChevronIcon() {
   );
 }
 
-export function Composer({ isStreaming, onSend, onStop, model, models, onModelChange }) {
+export function Composer({ isStreaming, onSend, onStop, model, models, onModelChange, disabled }) {
   const [value, setValue] = useState('');
   const [attached, setAttached] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
@@ -47,6 +47,7 @@ export function Composer({ isStreaming, onSend, onStop, model, models, onModelCh
   const canSend = isStreaming || value.trim() || attached;
 
   const submit = () => {
+    if (disabled) return;
     if (isStreaming) { onStop(); return; }
     let v = value.trim();
     if (attached) v += (v ? '\n\n' : '') + `[lampiran: ${attached.name}]`;
@@ -102,7 +103,8 @@ export function Composer({ isStreaming, onSend, onStop, model, models, onModelCh
           )}
         </div>
         <textarea
-          ref={taRef} rows="1" placeholder="Tulis pesan..." value={value}
+          ref={taRef} rows="1" placeholder={disabled ? 'Jawab pertanyaan di atas...' : 'Tulis pesan...'} value={value}
+          disabled={disabled}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); } }}
         />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { streamChat, toHistory } from '../lib/api.js';
+import { streamChat, toHistory, replyQuestion } from '../lib/api.js';
 import { DEFAULT_MODEL, MODELS } from '../config/models.js';
 import { calcTps } from '../lib/time.js';
 
@@ -17,6 +17,10 @@ export function useChat(scrollRef) {
   const [, setNow] = useState(Date.now());
   const [model, setModel] = useState(DEFAULT_MODEL);
   const [models, setModels] = useState(MODELS);
+  // tool yang sedang dijalankan agent (badge live, hilang setelah selesai)
+  const [activeTool, setActiveTool] = useState(null);
+  // pertanyaan dari agent yang menunggu jawaban user
+  const [pendingQuestion, setPendingQuestion] = useState(null);
 
   const messagesRef = useRef(messages);
   const modelRef = useRef(model);
@@ -25,6 +29,9 @@ export function useChat(scrollRef) {
   const forceScrollRef = useRef(false);
   const fullRef = useRef('');
   const idRef = useRef(3);
+  const pendingQuestionRef = useRef(null);
+
+  useEffect(() => { pendingQuestionRef.current = pendingQuestion; }, [pendingQuestion]);
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
@@ -79,11 +86,28 @@ export function useChat(scrollRef) {
           fullRef.current = text;
           if (first) setThinking(false);
           setStreamText(text);
-        }
+        },
+        onTool: (info) => {
+          setThinking(false);
+          if (info.name === 'error') {
+            setActiveTool({ name: 'error', label: info.label });
+            return;
+          }
+          setActiveTool({ name: info.name, label: info.label });
+        },
+        onToolResult: () => {
+          // tool selesai -> sembunyikan badge
+          setActiveTool(null);
+        },
+        onQuestion: (q) => {
+          setThinking(false);
+          setActiveTool(null);
+          setPendingQuestion({ id: q.id, questions: q.questions || [] });
+        },
       });
       pushMessages([...messagesRef.current, {
         id: idRef.current++, role: 'ai',
-        content: full || '(respon kosong)', time: Date.now(), tps: calcTps(full, t0)
+        content: full || '(respon kosong)', time: Date.now(), tps: calcTps(full, t0),
       }]);
     } catch (err) {
       if (ctrl.signal.aborted) {
@@ -91,7 +115,7 @@ export function useChat(scrollRef) {
         if (fullRef.current.trim()) {
           pushMessages([...messagesRef.current, {
             id: idRef.current++, role: 'ai',
-            content: fullRef.current, time: Date.now(), tps: calcTps(fullRef.current, t0)
+            content: fullRef.current, time: Date.now(), tps: calcTps(fullRef.current, t0),
           }]);
         } else {
           setMessages([...messagesRef.current]);
@@ -107,6 +131,7 @@ export function useChat(scrollRef) {
       setThinking(false);
       setIsStreaming(false);
       setStreamText(null);
+      setActiveTool(null);
       if (abortRef.current === ctrl) abortRef.current = null;
     }
   }, [pushMessages, scrollBottom]);
@@ -142,5 +167,24 @@ export function useChat(scrollRef) {
     pushMessages(next);
   }, [pushMessages]);
 
-  return { messages, streamText, thinking, isStreaming, model, models, setModel, send, regenerate, stop, toggleLike };
+  // kirim jawaban user untuk pertanyaan agent -> server lanjut loop
+  const answerQuestion = useCallback(async (answers) => {
+    const pq = pendingQuestionRef.current;
+    if (!pq) return;
+    setPendingQuestion(null);
+    try {
+      await replyQuestion(pq.id, answers);
+    } catch (err) {
+      pushMessages([...messagesRef.current, {
+        id: idRef.current++, role: 'ai',
+        content: `Gagal mengirim jawaban (${err.message}).`, time: Date.now()
+      }]);
+    }
+  }, [pushMessages]);
+
+  return {
+    messages, streamText, thinking, isStreaming, model, models, setModel,
+    send, regenerate, stop, toggleLike,
+    activeTool, pendingQuestion, answerQuestion,
+  };
 }

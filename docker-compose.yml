@@ -8,5 +8,7 @@ services:
     environment:
       # token CodeBuddy hanya hidup di proses server
       CODEBUDDY_TOKEN: ${CODEBUDDY_TOKEN}
+      # opsional: API key Exa untuk websearch (kosong = mode tanpa key)
+      EXA_API_KEY: ${EXA_API_KEY:-}
       PORT: "8081"
     restart: unless-stopped
