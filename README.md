@@ -6,7 +6,7 @@ Dibangun dengan React + Vite, tanpa komponen UI pihak ketiga — semua dijual ta
 
 ## Yang ada di dalamnya
 
-- **Streaming nyata** — token muncul satu per satu dengan fade halus per kata dan kursor kedip. Fence ```` ``` ```` yang belum ditutup pun langsung tampil sebagai code block, jadi tidak perlu nunggu penulisannya selesai.
+- **Streaming nyata** — token muncul satu per satu dengan fade halus per kata dan kursor kedip. Fence ```` ``` ```` yang belum ditutup pun langsung tampil sebagai code block, jadi tidak perlu nunggu penulisannya selesai..
 - **Tombol stop** — kirim berubah jadi stop saat respons berjalan. Yang sudah terlanjur masuk tetap disimpan sebagai pesan final.
 - **Regenerate** — pakai tombol ↻ di bawah jawaban AI, prompt user dikirim ulang di bawahnya tanpa menghapus jawaban lama.
 - **Teksan kaya** — bold, inline code, tautan, heading, blockquote, `hr`, list bulat dan bernomor, plus code block dengan label bahasa dan tombol salin sendiri.
