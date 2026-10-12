@@ -13,7 +13,7 @@ Dibangun dengan React + Vite, tanpa komponen UI pihak ketiga — semua dijual ta
 - **Pemilih model** — daftar model diambil dari `src/config/models.js`, ganti pilihan langsung ganti model request.
 - **Lampiran** — tombol `+` untuk pilih foto atau file, nama file ikut terkirim bersama pesan.
 - **Label balasan** — "35 detik yang lalu | 26 token/s" yang dihitung dari durasi stream dan perkiraan token.
-- **Auto-scroll pintar** — halaman mengikuti jawaban baru, tapi berhenti ikut begitu kamu scroll ke atas untuk membaca ulang.
+- **Auto-scroll pintar** — halaman mengikuti jawaban baru, tapi berhenti ikut begitu kamu scroll ke atas untuk membaca ulang..
 
 ## Menjalankan
 
